@@ -5,7 +5,7 @@ import { mapOrder } from '~/utils/sorts'
 import { isEmpty } from 'lodash'
 import { generatePlaceholderCard } from '~/utils/formatters'
 
-//khởi tạo giá trị state của 1 cái slice trong redux
+// Khởi tạo giá trị State của một cái Slice trong Redux
 const initialState = {
   currentActiveBoard: null
 }
@@ -21,30 +21,29 @@ export const fetchBoardDetailsAPI = createAsyncThunk(
   }
 )
 
-//khởi tạo Slice trong kho lưu trữ -redux store
+// Khởi tạo một cái Slice trong kho lưu trữ - Redux Store
 export const activeBoardSlice = createSlice({
   name: 'activeBoard',
   initialState,
-  //reducers: nơi xử lý đồng bộ
+  // Reducers: Nơi xử lý dữ liệu đồng bộ
   reducers: {
     updateCurrentActiveBoard: (state, action) => {
       // action.payload là chuẩn đặt tên khi nhận dữ liệu vào reducer, chúng ta sẽ gán nó ra một biến có nghĩa hơn
       const board = action.payload
 
-      // xử lý dữ liệu nếu cần thiết...
+      // Xử lý dữ liệu nếu cần thiết...
 
-      //update lại dữ liệu của currentActiveBoard
+      // Update lại dữ liệu của cái currentActiveBoard
       state.currentActiveBoard = board
     }
   },
-  //extraReducers: nơi xử lý dữ liệu Bất đồng bộ
+  // extraReducer: Nới xử lý dữ liệu bất đồng bộ
   extraReducers: (builder) => {
-    // Add reducers for additional action types here, and handle loading state as needed
     builder.addCase(fetchBoardDetailsAPI.fulfilled, (state, action) => {
-      // action.payload ở đây chính là cái respone.data trả về ở middleware phía trên activeBoardSlice
+      // action.payload ở đây chính là cái response.data trả về ở cái middleeware createAsyncThunk phía bên trên
       const board = action.payload
 
-      // xử lý dữ liệu nếu cần thiết...
+      // Xử lý dữ liệu nếu cần thiết...
       // Sắp xếp thứ tự các column luôn ở đây trước khi đưa dữ liệu xuống bên dưới các component con (video 71 đã giải thích lý do ở phần Fix bug quan trọng)
       board.columns = mapOrder(board.columns, board.columnOrderIds, '_id')
 
@@ -58,7 +57,8 @@ export const activeBoardSlice = createSlice({
           column.cards = mapOrder(column.cards, column.cardOrderIds, '_id')
         }
       })
-      //update lại dữ liệu của currentActiveBoard
+
+      // Update lại dữ liệu của cái currentActiveBoard
       state.currentActiveBoard = board
     })
   }
@@ -75,5 +75,5 @@ export const selectCurrentActiveBoard = (state) => {
 }
 
 // Cái file này tên là activeBoardSlice NHƯNG chúng ta sẽ export một thứ tên là Reducer, mọi người lưu ý :D
-//export default activeBoardSlice.reducer
+// export default activeBoardSlice.reducer
 export const activeBoardReducer = activeBoardSlice.reducer
