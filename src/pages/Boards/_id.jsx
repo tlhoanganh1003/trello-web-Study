@@ -9,9 +9,6 @@ import {
   updateColumnDetailsAPI,
   moveCardToDifferentColumnAPI
 } from '~/apis'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
-import Typography from '@mui/material/Typography'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   fetchBoardDetailsAPI,
@@ -20,6 +17,7 @@ import {
 } from '~/redux/activeBoard/activeBoardSlice'
 import { cloneDeep } from 'lodash'
 import { useParams } from 'react-router-dom'
+import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 
 function Board() {
   // Không dùng State của component nữa mà chuyển qua dùng State của Redux
@@ -27,10 +25,10 @@ function Board() {
   const board = useSelector(selectCurrentActiveBoard)
   const dispatch = useDispatch()
   const { boardId } = useParams()
-  // nội dung buổi số 3
+
   useEffect(() => {
     // Tạm thời fix cứng boardId, flow chuẩn chỉnh về sau khi học nâng cao trực tiếp với mình là chúng ta sẽ sử dụng react-router-dom để lấy chuẩn boardId từ URL về.
-    //const boardId = '6639025c22c7f9bf4237847f'
+    // const boardId = '663a371c33e9e5e84a20e769'
     // Call API trong Redux
     dispatch(fetchBoardDetailsAPI(boardId))
   }, [dispatch, boardId])
@@ -99,19 +97,7 @@ function Board() {
   }
 
   if (!board) {
-    return (
-      <Box sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 2,
-        width: '100vw',
-        height: '100vh'
-      }}>
-        <CircularProgress />
-        <Typography>Loading Board...</Typography>
-      </Box>
-    )
+    return <PageLoadingSpinner caption="Loading Board..." />
   }
 
   return (

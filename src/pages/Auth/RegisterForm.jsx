@@ -1,5 +1,5 @@
 // TrungQuanDev: https://youtube.com/@trungquandev
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Avatar from '@mui/material/Avatar'
@@ -17,16 +17,27 @@ import {
   FIELD_REQUIRED_MESSAGE,
   PASSWORD_RULE_MESSAGE,
   EMAIL_RULE_MESSAGE,
-  PASSWORD_CONFIRMATION_MESSEGER
+  PASSWORD_CONFIRMATION_MESSAGE
 } from '~/utils/validators'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
+import { registerUserAPI } from '~/apis'
+import { toast } from 'react-toastify'
 
 function RegisterForm() {
   const { register, handleSubmit, watch, formState: { errors } } = useForm()
+  const navigate = useNavigate()
 
   const submitRegister = (data) => {
-    //console.log(data)
+    // console.log(data)
+    const { email, password } = data
+    toast.promise(
+      registerUserAPI({ email, password }),
+      { pending: 'Registration is in progress...' }
+    ).then(user => {
+      navigate(`/login?registeredEmail=${user.email}`)
+    })
   }
+
   return (
     <form onSubmit={handleSubmit(submitRegister)}>
       <Zoom in={true} style={{ transitionDelay: '200ms' }}>
@@ -60,7 +71,7 @@ function RegisterForm() {
                   }
                 })}
               />
-              <FieldErrorAlert errors={errors} fieldName={'email'}/>
+              <FieldErrorAlert errors={errors} fieldName={'email'} />
             </Box>
             <Box sx={{ marginTop: '1em' }}>
               <TextField
@@ -77,24 +88,23 @@ function RegisterForm() {
                   }
                 })}
               />
-              <FieldErrorAlert errors={errors} fieldName={'password'}/>
+              <FieldErrorAlert errors={errors} fieldName={'password'} />
             </Box>
-
             <Box sx={{ marginTop: '1em' }}>
               <TextField
                 fullWidth
                 label="Enter Password Confirmation..."
                 type="password"
                 variant="outlined"
-                error={!!errors['password_confrimation']}
-                {...register('password_confrimation', {
+                error={!!errors['password_confirmation']}
+                {...register('password_confirmation', {
                   validate: (value) => {
                     if (value === watch('password')) return true
-                    return PASSWORD_CONFIRMATION_MESSEGER
+                    return PASSWORD_CONFIRMATION_MESSAGE
                   }
                 })}
               />
-              <FieldErrorAlert errors={errors} fieldName={'password_confrimation'}/>
+              <FieldErrorAlert errors={errors} fieldName={'password_confirmation'} />
             </Box>
           </Box>
           <CardActions sx={{ padding: '0 1em 1em 1em' }}>
