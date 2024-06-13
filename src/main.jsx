@@ -12,21 +12,26 @@ import 'react-toastify/dist/ReactToastify.css'
 // Cấu hình MUI Dialog
 import { ConfirmProvider } from 'material-ui-confirm'
 
-//cấu hình redux store
+// Cấu hình Redux Store
 import { Provider } from 'react-redux'
 import { store } from '~/redux/store'
 
-// cấu hình react router dom trong dự án  với browserRouter
+// Cấu hình react-router-dom vào trong dự án với BrowserRouter
 import { BrowserRouter } from 'react-router-dom'
+
 // Cấu hình Redux-Persist
 import { PersistGate } from 'redux-persist/integration/react'
 import { persistStore } from 'redux-persist'
 const persistor = persistStore(store)
 
+// Giải pháp Inject store: là kỹ thuật khi cần sử dụng biến redux store ở các file ngoài phạm vi react component
+import { injectStore } from '~/utils/authorizeAxios'
+injectStore(store)
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <PersistGate persistor={persistor}>
-      <BrowserRouter basename='/'>
+      <BrowserRouter basename="/">
         <CssVarsProvider theme={theme}>
           <ConfirmProvider defaultOptions={{
             allowClose: false,
