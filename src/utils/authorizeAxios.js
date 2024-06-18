@@ -68,10 +68,7 @@ authorizedAxiosInstance.interceptors.response.use((response) => {
   // Đầu tiên lấy được các request API đang bị lỗi thông qua error.config
   const originalRequest = error.config
   // console.log('originalRequest: ', originalRequest)
-  if (error.response?.status === 410 && !originalRequest._retry) {
-    // Bước 1: Gán thêm một giá trị _retry luôn = true trong khoảng thời gian chờ, để việc refresh token này chỉ luôn gọi 1 lần tại 1 thời điểm
-    originalRequest._retry = true
-
+  if (error.response?.status === 410 && originalRequest) {
     // Bước 2: Kiểm tra xem nếu chưa có refreshTokenPromise thì thực hiện gán việc gọi api refresh_token đồng thời gán vào cho cái refreshTokenPromise
     if (!refreshTokenPromise) {
       refreshTokenPromise = refreshTokenAPI()
@@ -82,9 +79,10 @@ authorizedAxiosInstance.interceptors.response.use((response) => {
           */
           return data?.accessToken
         })
-        .catch(() => {
-          // Nếu nhận bất kỳ lỗi nào khác từ API Refresh Token thì thẳng tay đăng xuất luôn
+        .catch((_error) => {
+          // Nếu nhận bất kỳ lỗi nào khác từ API Refresh Token thì sẽ đăng xuất luôn
           axiosReduxStore.dispatch(logoutUserAPI(false))
+          return Promise.reject(_error)
         })
         .finally(() => {
           // Dù API refresh_token có thành công hay lỗi thì vẫn luôn gán lại cái refreshTokenPromise về null như ban đầu
