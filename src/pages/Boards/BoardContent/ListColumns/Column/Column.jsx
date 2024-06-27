@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { toast } from 'react-toastify'
-import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Menu from '@mui/material/Menu'
@@ -30,6 +29,8 @@ import {
   selectCurrentActiveBoard
 } from '~/redux/activeBoard/activeBoardSlice'
 import { cloneDeep } from 'lodash'
+import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
+import { updateColumnDetailsAPI } from '~/apis'
 
 function Column({ column }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -134,6 +135,16 @@ function Column({ column }) {
     }).catch(() => {})
   }
 
+  const onUpdateColumnTitle = (newTitle) => {
+    // Gọi API update column và xử lý dữ liệu activeBoard trong redux
+    updateColumnDetailsAPI(column._id, { title: newTitle }).then(() => {
+      const newBoard = cloneDeep(board)
+      const columnToUpdate = newBoard.columns.find(c => c._id === column._id)
+      if (columnToUpdate) columnToUpdate.title = newTitle
+      dispatch(updateCurrentActiveBoard(newBoard))
+    })
+  }
+
   // Phải bọc div ở đây vì vấn đề chiều cao của column khi kéo thả sẽ có bug kiểu kiểu flickering (video 32)
   return (
     <div ref={setNodeRef} style={dndKitColumnStyles} {...attributes}>
@@ -157,13 +168,18 @@ function Column({ column }) {
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <Typography variant="h6" sx={{
+          <ToggleFocusInput
+            value={column?.title}
+            onChangedValue={onUpdateColumnTitle}
+            data-no-dnd="true"
+          />
+          {/* <Typography variant="h6" sx={{
             fontSize: '1rem',
             fontWeight: 'bold',
             cursor: 'pointer'
           }}>
             {column?.title}
-          </Typography>
+          </Typography> */}
           <Box>
             <Tooltip title="More options">
               <ExpandMoreIcon

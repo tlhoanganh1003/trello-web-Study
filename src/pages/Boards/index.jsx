@@ -14,17 +14,16 @@ import HomeIcon from '@mui/icons-material/Home'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import CardMedia from '@mui/material/CardMedia'
+// import CardMedia from '@mui/material/CardMedia'
 import Pagination from '@mui/material/Pagination'
 import PaginationItem from '@mui/material/PaginationItem'
 import { Link, useLocation } from 'react-router-dom'
 import randomColor from 'randomcolor'
 import SidebarCreateBoardModal from './create'
-
-import { styled } from '@mui/material/styles'
-
 import { fetchBoardsAPI } from '~/apis'
 import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
+
+import { styled } from '@mui/material/styles'
 // Styles của mấy cái Sidebar item menu, anh gom lại ra đây cho gọn.
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -62,22 +61,29 @@ function Boards() {
    */
   const page = parseInt(query.get('page') || '1', 10)
 
+  const updateStateData = (res) => {
+    setBoards(res.boards || [])
+    setTotalBoards(res.totalBoards || 0)
+  }
+
   useEffect(() => {
-    // Fake tạm 16 cái item thay cho boards
-    // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-    setBoards([...Array(16)].map((_, i) => i))
-    // Fake tạm giả sử trong Database trả về có tổng 100 bản ghi boards
-    setTotalBoards(100)
+    // // Fake tạm 16 cái item thay cho boards
+    // // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    // setBoards([...Array(16)].map((_, i) => i))
+    // // Fake tạm giả sử trong Database trả về có tổng 100 bản ghi boards
+    // setTotalBoards(100)
+
     // Mỗi khi cái url thay đổi ví dụ như chúng ta chuyển trang, thì cái location.search lấy từ hook useLocation của react-router-dom cũng thay đổi theo, đồng nghĩa hàm useEffect sẽ chạy lại và fetch lại API theo đúng page mới vì cái localtion.search đã nằm trong dependencies của useEffect
     // console.log(location.search)
 
     // Gọi API lấy danh sách boards ở đây...
-    // ...
-    fetchBoardsAPI(location.search).then(res => {
-      setBoards(res.boards || [])
-      setTotalBoards(res.totalBoards || 0)
-    })
+    fetchBoardsAPI(location.search).then(updateStateData)
   }, [location.search])
+
+  const onCreatedBoard = () => {
+    // Đơn giản là fetch lại danh sách boards
+    fetchBoardsAPI(location.search).then(updateStateData)
+  }
 
   // Lúc chưa tồn tại boards > đang chờ gọi api thì hiện loading
   if (!boards) {
@@ -106,7 +112,7 @@ function Boards() {
             </Stack>
             <Divider sx={{ my: 1 }} />
             <Stack direction="column" spacing={1}>
-              <SidebarCreateBoardModal />
+              <SidebarCreateBoardModal onCreatedBoard={onCreatedBoard} />
             </Stack>
           </Grid>
 
@@ -167,14 +173,14 @@ function Boards() {
                   showFirstButton
                   showLastButton
                   // Giá trị prop count của component Pagination là để hiển thị tổng số lượng page, công thức là lấy Tổng số lượng bản ghi chia cho số lượng bản ghi muốn hiển thị trên 1 page (ví dụ thường để 12, 24, 26, 48...vv). sau cùng là làm tròn số lên bằng hàm Math.ceil
-                  count={Math.ceil(totalBoards / 12)}
+                  count={Math.ceil(totalBoards / DEFAULT_ITEMS_PER_PAGE)}
                   // Giá trị của page hiện tại đang đứng
                   page={page}
                   // Render các page item và đồng thời cũng là những cái link để chúng ta click chuyển trang
                   renderItem={(item) => (
                     <PaginationItem
                       component={Link}
-                      to={`/boards${item.page === 1 ? '' : `?page=${item.page}`}`}
+                      to={`/boards${item.page === DEFAULT_PAGE ? '' : `?page=${item.page}`}`}
                       {...item}
                     />
                   )}
