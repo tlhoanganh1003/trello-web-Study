@@ -1,4 +1,3 @@
-import { styled } from '@mui/material/styles'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
@@ -18,12 +17,7 @@ import { selectCurrentUser } from '~/redux/user/userSlice'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { updateUserAPI } from '~/redux/user/userSlice'
-
-// Xử lý custom đẹp cái input file ở đây: https://mui.com/material-ui/react-button/#file-upload
-// Ngoài ra note thêm lib này từ docs của MUI nó recommend nếu cần dùng: https://github.com/viclafouch/mui-file-input
-const VisuallyHiddenInput = styled('input')({
-  display: 'none'
-})
+import VisuallyHiddenInput from '~/components/Form/VisuallyHiddenInput'
 
 function AccountTab() {
   const dispatch = useDispatch()
